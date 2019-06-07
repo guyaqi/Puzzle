@@ -1,6 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
+
+#include <shaderUtil.h>
+#include <fileReader.h>
 
 
 float vertices[] = {
@@ -10,17 +14,18 @@ float vertices[] = {
 };
 
 unsigned int VAO, VBO;
-unsigned int vertexShader;
-unsigned int fragmentShader;
-unsigned int shaderProgram;
+ShaderUtil* shader;
+// unsigned int vertexShader;
+// unsigned int fragmentShader;
+// unsigned int shaderProgram;
 
-const char *vertexShaderSource = "#version 330 core\n"
+char vertexShaderSource[] = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
+char fragmentShaderSource[] = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
@@ -32,17 +37,20 @@ void keyboard(unsigned char key, int x, int y);
 void display(void);
 void myInit();
 
-int main(int argc, char** argv) {   
+int main(int argc, char** argv) { 
     glutInit(&argc, argv);
     
     // glutInitWindowSize(1024, 768);
     glutCreateWindow("Game");
     GLenum err = glewInit();
 
+    // auto shader = new ShaderUtil(vertexShaderSource, fragmentShaderSource);
+    // shader->use();
+
     glutFullScreen();
     glutKeyboardFunc(&keyboard);
 
-    myInit();    
+    myInit();
     glutDisplayFunc(&display);  
     glutMainLoop(); 
     return EXIT_SUCCESS;
@@ -62,7 +70,8 @@ void display() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shaderProgram);
+    shader->use();
+    // glUseProgram(shaderProgram);
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -74,22 +83,14 @@ void myInit() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glUseProgram(shaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    char vsPath[] = "shaders/simple.vs";
+    char fsPath[] = "shaders/simple.fs";
+    auto vsSource = FileReader::Read(vsPath);
+    auto fsSource = FileReader::Read(fsPath);
+    printf("%s", vsSource);
+    delete[] vsSource;
+    delete[] fsSource;
+    shader = new ShaderUtil(vertexShaderSource, fragmentShaderSource);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
