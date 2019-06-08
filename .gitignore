@@ -1,4 +1,3 @@
-build/
 .vscode/
-!build/shaders/*
-!build/assets/*
+/build/game.exe
+/build/*.o
