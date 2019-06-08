@@ -19,7 +19,7 @@ default: init $(OUT_DIR)/$(OUT_NAME)
 
 
 $(OUT_DIR)/$(OUT_NAME): $(OUT_DIR)/main.o $(OUT_DIR)/shaderUtil.o $(OUT_DIR)/fileReader.o
-	$(CC) $^ -o $(OUT_DIR)/$(OUT_NAME) $(GLEW_LIBS) $(GLUT_LIBS) 
+	$(CC) $^ -g -o $(OUT_DIR)/$(OUT_NAME) $(GLEW_LIBS) $(GLUT_LIBS) 
 
 $(OUT_DIR)/main.o: src/main.cc
 	$(CC) $< -c -o $(OUT_DIR)/main.o -D FREEGLUT_STATIC $(INCLUDES)
